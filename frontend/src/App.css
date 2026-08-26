@@ -139,6 +139,13 @@
   background: transparent;
 
   box-shadow: none;
+
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-box:focus-within {
+  border-bottom-color: #E8664A;
+  box-shadow: 0 2px 0 #E8664A;
 }
 
 .search-icon {
@@ -1302,4 +1309,39 @@
   transform: translateY(-1px);
   background: #1F2937;
   color: #FAF8F5;
+}
+.date-input {
+  color: #1F2937;
+  cursor: pointer;
+}
+
+.date-input::-webkit-calendar-picker-indicator {
+  opacity: 0.65;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.date-input::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+.select-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.select-wrapper select {
+  appearance: none;
+  -webkit-appearance: none;
+  width: 100%;
+  padding-right: 38px;
+}
+
+.select-arrow {
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #E8664A;
+  font-size: 18px;
+  pointer-events: none;
 }

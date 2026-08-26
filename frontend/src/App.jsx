@@ -77,6 +77,23 @@ const handleSubmit = (e) => {
   e.preventDefault();
   setFormError("");
 
+  const requiredFields = {
+    item_name: "Item name",
+    description: "Description",
+    category: "Category",
+    location: "Location",
+    date: "Date",
+    posted_by: "Your name",
+    contact: "Contact"
+  };
+
+  for (const [field, label] of Object.entries(requiredFields)) {
+    if (!formData[field].trim()) {
+      setFormError(`Please enter ${label.toLowerCase()}.`);
+      return;
+    }
+  }
+
   const newItem = {
     type: reportType,
     ...formData
@@ -163,8 +180,10 @@ return (
           <button
   className="report-button"
   onClick={() => {
+    setShowAbout(false);
     setShowReport(true);
     setReportType(null);
+    setSelectedItem(null);
   }}
 >
   Report an item
@@ -177,7 +196,12 @@ return (
   <section className="about-page">
     <button
       className="back-button"
-      onClick={() => setShowAbout(false)}
+       onClick={() => {
+  setShowAbout(false);
+  setShowReport(false);
+  setReportType(null);
+  setSelectedItem(null);
+}}
     >
       ← Back to board
     </button>
@@ -375,7 +399,7 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
         }
         value={formData.item_name}
         onChange={handleFormChange}
-        required
+         
       />
     </div>
 
@@ -387,27 +411,30 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
         value={formData.description}
         onChange={handleFormChange}
         rows="3"
-        required
+         
       />
     </div>
 
     <div className="form-row">
       <div className="form-field">
         <label>Category</label>
-        <select
-          name="category"
-          value={formData.category}
-          onChange={handleFormChange}
-          required
-        >
-          <option value="">Select a category</option>
-          <option value="Electronics">Electronics</option>
-          <option value="Documents">Documents</option>
-          <option value="Clothing">Clothing</option>
-          <option value="Accessories">Accessories</option>
-          <option value="Books">Books</option>
-          <option value="Others">Others</option>
-        </select>
+        <div className="select-wrapper">
+  <select
+    name="category"
+    value={formData.category}
+    onChange={handleFormChange}
+  >
+    <option value="">Select a category</option>
+    <option value="Electronics">Electronics</option>
+    <option value="Documents">Documents</option>
+    <option value="Clothing">Clothing</option>
+    <option value="Accessories">Accessories</option>
+    <option value="Books">Books</option>
+    <option value="Others">Others</option>
+  </select>
+
+  <span className="select-arrow">⌄</span>
+</div>
       </div>
 
       <div className="form-field">
@@ -418,7 +445,7 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
           placeholder="e.g. Library"
           value={formData.location}
           onChange={handleFormChange}
-          required
+           
         />
       </div>
     </div>
@@ -431,12 +458,12 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
       </label>
 
       <input
+  className="date-input"
   type="date"
   name="date"
   value={formData.date}
   onChange={handleFormChange}
   max={new Date().toISOString().split("T")[0]}
-  required
 />
     </div>
 
@@ -449,7 +476,7 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
           placeholder="e.g. Rahul"
           value={formData.posted_by}
           onChange={handleFormChange}
-          required
+           
         />
       </div>
 
@@ -461,11 +488,13 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
           placeholder="Email or phone number"
           value={formData.contact}
           onChange={handleFormChange}
-          required
+           
         />
       </div>
     </div>
-
+{formError && (
+  <p className="form-error">{formError}</p>
+)}
     <button className="submit-report" type="submit">
       {reportType === "Lost"
         ? "Post lost item"
