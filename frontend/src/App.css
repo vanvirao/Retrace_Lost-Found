@@ -1345,3 +1345,34 @@
   font-size: 18px;
   pointer-events: none;
 }
+.item-actions {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.edit-item,
+.delete-item {
+  padding: 12px 20px;
+  border: 1px solid #1F2937;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.edit-item:hover {
+  background: #1F2937;
+  color: white;
+}
+
+.delete-item {
+  border-color: #E8664A;
+  color: #E8664A;
+}
+
+.delete-item:hover {
+  background: #E8664A;
+  color: white;
+}

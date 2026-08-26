@@ -4,6 +4,7 @@ import "./App.css";
 function App() {
   const [items, setItems] = useState([]);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [editingItem, setEditingItem] = useState(null);
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("All");
   const [showAbout, setShowAbout] = useState(false);
@@ -73,6 +74,22 @@ const handleFormChange = (e) => {
     [e.target.name]: e.target.value
   });
 };
+const handleEdit = (item) => {
+  setEditingItem(item);
+  setReportType(item.type);
+  setFormData({
+    item_name: item.item_name,
+    description: item.description,
+    category: item.category,
+    location: item.location,
+    date: item.date ? item.date.split("T")[0] : "",
+    posted_by: item.posted_by,
+    contact: item.contact
+  });
+  setShowReport(true);
+  setSelectedItem(null);
+  setFormError("");
+};
 const handleSubmit = (e) => {
   e.preventDefault();
   setFormError("");
@@ -94,34 +111,55 @@ const handleSubmit = (e) => {
     }
   }
 
-  const newItem = {
+  const itemData = {
     type: reportType,
     ...formData
   };
 
-  fetch(`${import.meta.env.VITE_API_URL}/items`, {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json"
-  },
-    body: JSON.stringify(newItem)
+  const url = editingItem
+    ? `${import.meta.env.VITE_API_URL}/items/${editingItem.id}`
+    : `${import.meta.env.VITE_API_URL}/items`;
+
+  const method = editingItem ? "PUT" : "POST";
+
+  fetch(url, {
+    method,
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(itemData)
   })
     .then(async (response) => {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.error || "Unable to post item");
+        throw new Error(
+          data.error ||
+          (editingItem
+            ? "Unable to update item"
+            : "Unable to post item")
+        );
       }
 
       return data;
     })
-    .then((data) => {
-      console.log("Item posted:", data);
+    .then(() => {
       setReportSuccess(true);
+      setEditingItem(null);
     })
     .catch((error) => {
-      console.error("Error posting item:", error);
-      setFormError("Something went wrong while posting your item. Please try again.");
+      console.error(
+        editingItem
+          ? "Error updating item:"
+          : "Error posting item:",
+        error
+      );
+
+      setFormError(
+        editingItem
+          ? "Something went wrong while updating the item. Please try again."
+          : "Something went wrong while posting your item. Please try again."
+      );
     });
 };
 
@@ -370,9 +408,16 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
     </p>
 
     <h1>
-      {reportType === "Lost"
-        ? "What did you lose?"
-        : "What did you find?"}
+      {editingItem
+  ? "Update your report"
+  : reportType === "Lost"
+    ? "What did you lose?"
+    : "What did you find?"}
+    {editingItem
+  ? "Make any changes you need to the details below."
+  : reportType === "Lost"
+    ? "Let's get the details down so someone can help retrace it."
+    : "Let's get the details down so we can help return it."}
     </h1>
 
     <p>
@@ -492,11 +537,13 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
   <p className="form-error">{formError}</p>
 )}
     <button className="submit-report" type="submit">
-      {reportType === "Lost"
-        ? "Post lost item"
-        : "Post found item"}
-      <span>→</span>
-    </button>
+  {editingItem
+    ? "Save changes"
+    : reportType === "Lost"
+      ? "Post lost item"
+      : "Post found item"}
+  <span>→</span>
+</button>
   </form>
 </div>
   )}
@@ -581,7 +628,55 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
           <strong>{selectedItem.category}</strong>
         </div>
       </div>
+<div className="item-actions">
+  <button
+    className="edit-item"
+    onClick={() => handleEdit(selectedItem)}
+  >
+    Edit item
+  </button>
 
+  <button
+    className="delete-item"
+    onClick={() => {
+      const confirmed = window.confirm(
+        "Delete this report? This will remove the item from the board."
+      );
+
+      if (!confirmed) return;
+
+      fetch(
+        `${import.meta.env.VITE_API_URL}/items/${selectedItem.id}`,
+        {
+          method: "DELETE"
+        }
+      )
+        .then(async (response) => {
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(
+              data.error || "Unable to delete item"
+            );
+          }
+
+          return data;
+        })
+        .then(() => {
+          setSelectedItem(null);
+
+          fetch(`${import.meta.env.VITE_API_URL}/items`)
+            .then((response) => response.json())
+            .then((data) => setItems(data));
+        })
+        .catch((error) => {
+          console.error("Error deleting item:", error);
+        });
+    }}
+  >
+    Delete item
+  </button>
+</div>
       <div className="contact-section">
         <p>Know something about this item?</p>
         <button
