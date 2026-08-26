@@ -381,11 +381,7 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
         : "Let's get the details down so we can help return it."}
     </p>
   </div>
-{formError && (
-  <p className="form-error">
-    {formError}
-  </p>
-)}
+
   <form onSubmit={handleSubmit}>
     <div className="form-field">
       <label>Item name</label>
