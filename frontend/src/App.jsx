@@ -414,7 +414,7 @@ fetch(`${import.meta.env.VITE_API_URL}/items`)
     ? "What did you lose?"
     : "What did you find?"}
     {editingItem
-  ? "Make any changes you need to the details below."
+  ? " Make any changes you need to the details below."
   : reportType === "Lost"
     ? "Let's get the details down so someone can help retrace it."
     : "Let's get the details down so we can help return it."}
